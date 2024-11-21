@@ -41,21 +41,23 @@ function App() {
 
   const handleSolveChallenge = (id: number, answer: string) => {
     const challenge = gameState.challenges.find(c => c.id === id);
-    if (!challenge || challenge.solved) return;
+    if (!challenge) return;
 
     const isCorrect = answer.toUpperCase() === challenge.solution;
     
-    // Log the attempt to history
+    // Log the submission to history
     setAnswerHistory(prev => [{
       challengeId: id,
       challengeTitle: challenge.title,
       answer: answer,
       correct: isCorrect,
       timestamp: new Date(),
-      feedback: isCorrect ? challenge.feedback : undefined
+      feedback: isCorrect 
+        ? `Correct! ${challenge.feedback}` 
+        : `Incorrect answer: "${answer}". Keep trying! Remember to check the hint if you need help.`
     }, ...prev]);
 
-    if (isCorrect) {
+    if (isCorrect && !challenge.solved) {
       const newStreak = gameState.streak + 1;
       const streakBonus = Math.floor(newStreak / 3) * 50;
       const totalPoints = challenge.points + streakBonus;
@@ -77,7 +79,7 @@ function App() {
           c.id === id ? { ...c, solved: true } : c
         ),
       }));
-    } else {
+    } else if (!isCorrect) {
       setTerminalContent("⚠️ Security breach detected! Review your solution and try again. Remember: attention to detail is crucial in cybersecurity!");
       setGameState(prev => ({
         ...prev,
@@ -106,13 +108,13 @@ function App() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 text-white p-8">
       <div className="max-w-6xl mx-auto">
-        <div className="flex justify-end mb-4">
+        <div className="flex justify-between items-center mb-4">
           <button
             onClick={() => setShowHistory(true)}
             className="flex items-center space-x-2 bg-indigo-900/50 px-4 py-2 rounded-lg hover:bg-indigo-800/50 transition-colors"
           >
             <History className="w-5 h-5" />
-            <span>View History</span>
+            <span>View History ({answerHistory.length})</span>
           </button>
         </div>
 

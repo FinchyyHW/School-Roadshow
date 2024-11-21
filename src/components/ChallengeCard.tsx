@@ -26,15 +26,21 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, onSolve
     }
   };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setAnswer(e.target.value);
+  };
+
   const handleSubmit = () => {
+    if (!answer.trim()) return;
+    
+    onSolve(challenge.id, answer.trim());
+
     if (answer.trim().toUpperCase() === challenge.solution) {
-      onSolve(challenge.id, answer);
-      setAnswer('');
       setShowExplanation(true);
     } else {
       setIsWiggling(true);
       setTimeout(() => setIsWiggling(false), 500);
-      setShowHintPopup(true); // Show hint popup on incorrect answer
+      setShowHintPopup(true);
     }
   };
 
@@ -71,16 +77,20 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, onSolve
             <input
               type="text"
               value={answer}
-              onChange={(e) => setAnswer(e.target.value)}
+              onChange={handleInputChange}
               onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
-              disabled={challenge.solved}
               placeholder="Type your answer here..."
-              className="flex-1 bg-indigo-800/50 text-white px-4 py-3 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-purple-500 placeholder-gray-400 border border-purple-500/30"
+              className={`flex-1 bg-indigo-800/50 text-white px-4 py-3 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-purple-500 placeholder-gray-400 border border-purple-500/30 ${
+                challenge.solved ? 'border-green-500/30' : ''
+              }`}
             />
             <button
               onClick={handleSubmit}
-              disabled={challenge.solved}
-              className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-3 rounded-lg font-bold hover:from-purple-600 hover:to-pink-600 focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50 transform transition-transform active:scale-95 shadow-lg"
+              className={`bg-gradient-to-r ${
+                challenge.solved 
+                  ? 'from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600' 
+                  : 'from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600'
+              } text-white px-6 py-3 rounded-lg font-bold focus:outline-none focus:ring-2 focus:ring-purple-500 transform transition-transform active:scale-95 shadow-lg`}
             >
               Submit
             </button>
